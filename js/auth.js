@@ -11,7 +11,9 @@ function getAuthErrorMessage(code) {
         'auth/email-already-in-use': 'An account with this email already exists.',
         'auth/weak-password': 'Password must be at least 6 characters.',
         'auth/network-request-failed': 'Network error. Check your connection.',
-        'auth/popup-closed-by-user': 'Sign in cancelled.'
+        'auth/popup-closed-by-user': 'Sign in cancelled.',
+        'auth/invalid-action-code': 'Invalid or expired action code.',
+        'auth/missing-email': 'Please provide an email address.'
     };
     return map[code] || 'Authentication failed. Please try again.';
 }
@@ -63,15 +65,49 @@ async function ensureUserDoc(user) {
 async function resetPassword(email) {
     const msgEl = document.getElementById('resetMessage');
     if (!email) {
-        if (msgEl) { msgEl.textContent = 'Please enter your email first.'; msgEl.classList.remove('hidden'); setTimeout(()=>msgEl.classList.add('hidden'),4000); }
+        if (msgEl) {
+            msgEl.textContent = 'Please enter your email first.';
+            msgEl.classList.remove('hidden');
+            setTimeout(() => msgEl.classList.add('hidden'), 4000);
+        }
         return;
     }
+
+    // basic client-side validation
+    const trimmed = (email || '').trim();
+    if (!trimmed || !/^\S+@\S+\.\S+$/.test(trimmed)) {
+        if (msgEl) {
+            msgEl.textContent = 'Please enter a valid email address.';
+            msgEl.classList.remove('hidden');
+            setTimeout(() => msgEl.classList.add('hidden'), 4000);
+        }
+        return;
+    }
+
     try {
-        await auth.sendPasswordResetEmail(email);
-        if (msgEl) { msgEl.textContent = 'Password reset link sent to your email.'; msgEl.classList.remove('hidden'); setTimeout(()=>msgEl.classList.add('hidden'),4000); }
+        // Use Firebase Auth to send password reset email
+        await auth.sendPasswordResetEmail(trimmed);
+        if (msgEl) {
+            msgEl.textContent = 'Password reset link sent to your email.';
+            msgEl.classList.remove('hidden');
+            // show success style if you have style variations
+            msgEl.classList.add('show', 'success');
+            setTimeout(() => {
+                msgEl.classList.remove('show', 'success');
+                msgEl.classList.add('hidden');
+            }, 5000);
+        }
     } catch (error) {
         console.error('resetPassword error', error);
-        if (msgEl) { msgEl.textContent = getAuthErrorMessage(error.code); msgEl.classList.remove('hidden'); setTimeout(()=>msgEl.classList.add('hidden'),4000); }
+        if (msgEl) {
+            msgEl.textContent = getAuthErrorMessage(error.code);
+            msgEl.classList.remove('hidden');
+            msgEl.classList.add('show', 'error');
+            setTimeout(() => {
+                msgEl.classList.remove('show', 'error');
+                msgEl.classList.add('hidden');
+            }, 6000);
+        }
     }
 }
 
@@ -113,12 +149,35 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAuthError();
     });
 
-    // Forgot password
+    // Forgot password: improved behaviour
     if (forgotLink) {
-        forgotLink.addEventListener('click', (e) => {
+        forgotLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email')?.value?.trim() || '';
-            resetPassword(email);
+
+            // If the email input in the login form has a value, use it.
+            // Otherwise prompt the user to enter an email (non-intrusive).
+            const emailInput = document.getElementById('email');
+            let emailValue = emailInput?.value?.trim() || '';
+
+            if (!emailValue) {
+                // Use a browser prompt so we don't alter your HTML structure.
+                // This avoids adding new UI elements while still allowing the user to provide an email.
+                const promptEmail = window.prompt('Please enter your email to receive the password reset link:');
+                if (!promptEmail) {
+                    // user cancelled prompt — show a small message
+                    const msgEl = document.getElementById('resetMessage');
+                    if (msgEl) {
+                        msgEl.textContent = 'Password reset cancelled.';
+                        msgEl.classList.remove('hidden');
+                        setTimeout(() => msgEl.classList.add('hidden'), 3000);
+                    }
+                    return;
+                }
+                emailValue = promptEmail.trim();
+            }
+
+            // call resetPassword (handles validation/messages)
+            await resetPassword(emailValue);
         });
     }
 
