@@ -1,337 +1,260 @@
+// analytics.js
 // ============================================
 // Analytics Dashboard
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+
     // Elements
-    const analyticsDate = document.getElementById('analyticsDate');
-    const analyticsContent = document.getElementById('analyticsContent');
-    const emptyAnalytics = document.getElementById('emptyAnalytics');
-    const loadingAnalytics = document.getElementById('loadingAnalytics');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userName = document.getElementById('userName');
+    const analyticsDate = document.getElementById("analyticsDate");
+    const analyticsContent = document.getElementById("analyticsContent");
+    const emptyAnalytics = document.getElementById("emptyAnalytics");
+    const loadingAnalytics = document.getElementById("loadingAnalytics");
 
-    // Summary elements
-    const totalHours = document.getElementById('totalHours');
-    const totalActivities = document.getElementById('totalActivities');
-    const topCategory = document.getElementById('topCategory');
-    const avgDuration = document.getElementById('avgDuration');
+    // visible navbar username + initial (may or may not exist depending on markup)
+    const navUserName = document.getElementById("navUserName");
+    const navUserInitial = document.getElementById("navUserInitial");
 
-    // Category list
-    const categoryList = document.getElementById('categoryList');
+    // sidebar elements (profile.js will inject these)
+    const sidebarUserName = document.getElementById("sidebarUserName");
+    const sidebarUserEmail = document.getElementById("sidebarUserEmail");
+    const sidebarUserInitial = document.getElementById("sidebarUserInitial");
 
-    // Charts
+    const logoutBtn = document.getElementById("logoutBtn");
+    // guard: sidebarLogout may be injected by profile.js (id now 'sidebarLogout')
+    const sidebarLogout = document.getElementById("sidebarLogout");
+
+    // Summary
+    const totalHours = document.getElementById("totalHours");
+    const totalActivities = document.getElementById("totalActivities");
+    const topCategory = document.getElementById("topCategory");
+    const avgDuration = document.getElementById("avgDuration");
+
+    const categoryList = document.getElementById("categoryList");
+
     let pieChart = null;
     let barChart = null;
 
-    // State
     let currentDate = Utils.getTodayDate();
     let activities = [];
 
-    // Get date from URL params
+    // check date from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const dateParam = urlParams.get('date');
-    if (dateParam) {
-        currentDate = dateParam;
-    }
+    const dateParam = urlParams.get("date");
+    if (dateParam) currentDate = dateParam;
 
-    // Initialize
+    // INIT
     init();
 
     function init() {
         auth.onAuthStateChanged((user) => {
             if (!user) {
-                window.location.href = 'index.html';
+                window.location.href = "index.html";
                 return;
             }
 
-            userName.textContent = user.displayName || user.email?.split('@')[0] || 'User';
-            
-            analyticsDate.value = currentDate;
-            analyticsDate.max = Utils.getTodayDate();
-            
+            // ---- set username everywhere if elements exist ----
+            const name = user.displayName || (user.email ? user.email.split("@")[0] : "User");
+            const initial = name ? name.charAt(0).toUpperCase() : "U";
+            const email = user.email || "";
+
+            if (navUserName) navUserName.textContent = name;
+            if (navUserInitial) navUserInitial.textContent = initial;
+
+            if (sidebarUserName) sidebarUserName.textContent = name;
+            if (sidebarUserEmail) sidebarUserEmail.textContent = email;
+            if (sidebarUserInitial) sidebarUserInitial.textContent = initial;
+            // ------------------------------
+
+            if (analyticsDate) {
+                analyticsDate.value = currentDate;
+                analyticsDate.max = Utils.getTodayDate();
+            }
+
             loadAnalytics();
         });
     }
 
-    // Load analytics
     async function loadAnalytics() {
         showLoading(true);
 
         try {
-            activities = await DB.getActivities(currentDate);
-            
-            if (activities.length === 0) {
+            activities = await DB.getActivities(currentDate) || [];
+
+            if (!Array.isArray(activities) || activities.length === 0) {
                 showEmptyState();
             } else {
                 renderAnalytics();
             }
-        } catch (error) {
-            console.error('Error loading analytics:', error);
+
+        } catch (err) {
+            console.error("Error loading analytics", err);
             showEmptyState();
         }
 
         showLoading(false);
     }
 
-    // Show loading
     function showLoading(show) {
+        if (!loadingAnalytics || !analyticsContent || !emptyAnalytics) return;
         if (show) {
-            loadingAnalytics.classList.remove('hidden');
-            analyticsContent.classList.add('hidden');
-            emptyAnalytics.classList.add('hidden');
+            loadingAnalytics.classList.remove("hidden");
+            analyticsContent.classList.add("hidden");
+            emptyAnalytics.classList.add("hidden");
         } else {
-            loadingAnalytics.classList.add('hidden');
+            loadingAnalytics.classList.add("hidden");
         }
     }
 
-    // Show empty state
     function showEmptyState() {
-        emptyAnalytics.classList.remove('hidden');
-        analyticsContent.classList.add('hidden');
+        if (!emptyAnalytics || !analyticsContent) return;
+        emptyAnalytics.classList.remove("hidden");
+        analyticsContent.classList.add("hidden");
     }
 
-    // Render analytics
     function renderAnalytics() {
-        analyticsContent.classList.remove('hidden');
-        emptyAnalytics.classList.add('hidden');
+        if (analyticsContent) analyticsContent.classList.remove("hidden");
+        if (emptyAnalytics) emptyAnalytics.classList.add("hidden");
 
         updateSummary();
         renderCharts();
         renderCategoryBreakdown();
     }
 
-    // Update summary cards
     function updateSummary() {
-        const total = activities.reduce((sum, act) => sum + (act.duration || 0), 0);
-        
-        // Total hours
-        totalHours.textContent = Utils.formatDuration(total);
-        
-        // Activity count
-        totalActivities.textContent = activities.length;
-        
-        // Top category
+        const total = activities.reduce((sum, a) => sum + (a.duration || 0), 0);
+
+        if (totalHours) totalHours.textContent = Utils.formatDuration(total);
+        if (totalActivities) totalActivities.textContent = activities.length;
+
         const categoryTotals = getCategoryTotals();
         const topCat = Object.entries(categoryTotals)
             .sort((a, b) => b[1] - a[1])[0];
-        topCategory.textContent = topCat ? `${Utils.getCategoryEmoji(topCat[0])} ${topCat[0]}` : '-';
-        
-        // Average duration
-        const avg = Math.round(total / activities.length);
-        avgDuration.textContent = Utils.formatDuration(avg);
+
+        if (topCategory) topCategory.textContent = topCat
+            ? `${Utils.getCategoryEmoji(topCat[0])} ${topCat[0]}`
+            : "-";
+
+        const avg = activities.length ? Math.round(total / activities.length) : 0;
+        if (avgDuration) avgDuration.textContent = Utils.formatDuration(avg);
     }
 
-    // Get totals by category
     function getCategoryTotals() {
         return activities.reduce((acc, act) => {
-            acc[act.category] = (acc[act.category] || 0) + act.duration;
+            const cat = act.category || 'Others';
+            acc[cat] = (acc[cat] || 0) + (act.duration || 0);
             return acc;
         }, {});
     }
 
-    // Render charts
     function renderCharts() {
-        renderPieChart();
-        renderBarChart();
+        try {
+            renderPieChart();
+            renderBarChart();
+        } catch (err) {
+            console.error('chart render error', err);
+        }
     }
 
-    // Render pie chart
     function renderPieChart() {
-        const ctx = document.getElementById('pieChart').getContext('2d');
-        const categoryTotals = getCategoryTotals();
-        
-        const labels = Object.keys(categoryTotals);
-        const data = Object.values(categoryTotals);
-        const colors = labels.map(cat => Utils.getCategoryColor(cat));
+        const canvas = document.getElementById("pieChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const totals = getCategoryTotals();
 
-        if (pieChart) {
-            pieChart.destroy();
-        }
+        const labels = Object.keys(totals);
+        const data = Object.values(totals);
+        const colors = labels.map((c) => Utils.getCategoryColor(c));
+
+        if (pieChart) pieChart.destroy();
 
         pieChart = new Chart(ctx, {
-            type: 'doughnut',
+            type: "doughnut",
             data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: colors,
-                    borderColor: '#ffffff',
-                    borderWidth: 3,
-                    hoverBorderWidth: 0,
-                    hoverOffset: 10
-                }]
+                labels,
+                datasets: [
+                    {
+                        data,
+                        backgroundColor: colors,
+                        borderColor: "#fff",
+                        borderWidth: 3,
+                        hoverOffset: 10,
+                    },
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '65%',
+                cutout: "65%",
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1f2937',
-                        titleFont: {
-                            family: "'Inter', sans-serif",
-                            size: 14,
-                            weight: '600'
-                        },
-                        bodyFont: {
-                            family: "'Inter', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((context.raw / total) * 100);
-                                return ` ${Utils.formatDuration(context.raw)} (${percentage}%)`;
-                            }
-                        }
-                    }
+                    legend: { position: "bottom" },
                 },
-                animation: {
-                    animateRotate: true,
-                    animateScale: true
-                }
-            }
+            },
         });
     }
 
-    // Render bar chart
     function renderBarChart() {
-        const ctx = document.getElementById('barChart').getContext('2d');
-        
-        const labels = activities.map(act => 
-            act.name.length > 15 ? act.name.substring(0, 15) + '...' : act.name
-        );
-        const data = activities.map(act => act.duration);
-        const colors = activities.map(act => Utils.getCategoryColor(act.category));
+        const canvas = document.getElementById("barChart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
 
-        if (barChart) {
-            barChart.destroy();
-        }
+        const labels = activities.map((a) =>
+            a.name ? (a.name.length > 15 ? a.name.substring(0, 15) + "..." : a.name) : "Untitled"
+        );
+        const data = activities.map((a) => a.duration || 0);
+        const colors = activities.map((a) => Utils.getCategoryColor(a.category || 'Others'));
+
+        if (barChart) barChart.destroy();
 
         barChart = new Chart(ctx, {
-            type: 'bar',
+            type: "bar",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Duration (minutes)',
-                    data: data,
-                    backgroundColor: colors.map(c => c + '99'),
-                    borderColor: colors,
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    borderSkipped: false
-                }]
+                labels,
+                datasets: [
+                    {
+                        data,
+                        backgroundColor: colors.map((c) => c + "88"),
+                        borderColor: colors,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    },
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: activities.length > 5 ? 'y' : 'x',
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#1f2937',
-                        titleFont: {
-                            family: "'Inter', sans-serif",
-                            size: 14,
-                            weight: '600'
-                        },
-                        bodyFont: {
-                            family: "'Inter', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            title: function(context) {
-                                return activities[context[0].dataIndex].name;
-                            },
-                            label: function(context) {
-                                return ` ${Utils.formatDuration(context.raw)}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 11
-                            }
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: '#f1f5f9'
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 11
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                }
-            }
+                indexAxis: activities.length > 6 ? "y" : "x",
+                plugins: { legend: { display: false } },
+            },
         });
     }
 
-    // Render category breakdown
     function renderCategoryBreakdown() {
-        const categoryTotals = getCategoryTotals();
-        const sortedCategories = Object.entries(categoryTotals)
-            .sort((a, b) => b[1] - a[1]);
+        const totals = getCategoryTotals();
+        const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
 
-        categoryList.innerHTML = sortedCategories.map(([cat, duration]) => `
+        if (!categoryList) return;
+        categoryList.innerHTML = sorted
+            .map(
+                ([cat, dur]) => `
             <div class="category-item">
-                <span class="category-dot" style="background-color: ${Utils.getCategoryColor(cat)}"></span>
+                <span class="category-dot" style="background-color:${Utils.getCategoryColor(cat)}"></span>
                 <span class="category-name">${Utils.getCategoryEmoji(cat)} ${cat}</span>
-                <span class="category-duration">${Utils.formatDuration(duration)}</span>
+                <span class="category-duration">${Utils.formatDuration(dur)}</span>
             </div>
-        `).join('');
+        `
+            )
+            .join("");
     }
 
-    // Event Listeners
-
-    // Date change
-    analyticsDate.addEventListener('change', (e) => {
+    // Events
+    analyticsDate?.addEventListener("change", (e) => {
         currentDate = e.target.value;
-        // Update URL
-        window.history.replaceState({}, '', `analytics.html?date=${currentDate}`);
+        window.history.replaceState({}, "", `analytics.html?date=${currentDate}`);
         loadAnalytics();
     });
 
-    // Logout
-    logoutBtn.addEventListener('click', async () => {
-        try {
-            await auth.signOut();
-            window.location.href = 'index.html';
-        } catch (error) {
-            console.error('Error signing out:', error);
-        }
-    });
+    // logout buttons: guard their existence before adding listeners
+    if (logoutBtn) logoutBtn.addEventListener("click", () => auth.signOut());
+    if (sidebarLogout) sidebarLogout.addEventListener("click", () => auth.signOut());
 });

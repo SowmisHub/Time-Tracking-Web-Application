@@ -479,3 +479,131 @@
     font-size: var(--font-sm);
     font-weight: var(--font-medium);
 }
+
+.forgot-password {
+    text-align: right;
+    margin-top: 6px;
+}
+
+.forgot-password a {
+    color: var(--primary);
+    font-size: var(--font-sm);
+}
+
+.auth-message {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.auth-message.show {
+    opacity: 1;
+}
+
+.auth-message.success {
+    color: var(--success);
+}
+
+.auth-message.error {
+    color: var(--error);
+}
+
+/* Profile Page */
+.profile-container {
+    max-width: 550px;
+    margin: 2rem auto;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+    font-weight: bold;
+    backdrop-filter: blur(8px);
+}
+
+.profile-info {
+    padding: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: .7rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-form {
+    padding: 1.5rem;
+}
+
+.profile-message {
+    margin-top: .5rem;
+    padding: .7rem;
+    border-radius: 8px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: .3s ease;
+}
+
+.profile-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile-message.success {
+    background: rgba(16,185,129,.15);
+    color: #10b981;
+}
+
+.profile-message.error {
+    background: rgba(239,68,68,.15);
+    color: #ef4444;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    padding: .6rem 1.2rem;
+    border-radius: 8px;
+    background: #10b981;
+    color: white;
+    opacity: 0;
+    transition: .3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.error {
+    background: #ef4444;
+}
+

@@ -1,8 +1,7 @@
-// ============================================
-// Firebase Configuration
-// ============================================
+// firebase-config.js
+// Firebase compat (v10 compat scripts expected in HTML)
+// Replace with your real config if different
 
-// IMPORTANT: Replace with your Firebase project config
 const firebaseConfig = {
     apiKey: "AIzaSyBFlx7tNISTTOatX6_QWTbu4p4ztjn-cEs",
     authDomain: "time-tracking-web-application.firebaseapp.com",
@@ -12,20 +11,22 @@ const firebaseConfig = {
     appId: "1:516236781054:web:873c9a4577e6b4deac0caf"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// initialize (compat)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// Initialize services
+// compat service handles used across app
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Enable offline persistence
+// enable persistence if available
 db.enablePersistence().catch((err) => {
-    if (err.code === 'failed-precondition') {
-        console.warn('Persistence failed: Multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-        console.warn('Persistence not available');
+    if (err && err.code === 'failed-precondition') {
+        console.warn('Persistence failed: multiple tabs open');
+    } else if (err && err.code === 'unimplemented') {
+        console.warn('Persistence not available in this browser');
     }
 });
 
-console.log('Firebase initialized successfully');
+console.log('Firebase initialized (compat)');

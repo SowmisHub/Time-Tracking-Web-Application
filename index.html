@@ -1,137 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeFlow - Track Your Day</title>
-    <meta name="description" content="Beautiful time tracking application to log and analyze your daily activities">
-   
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TimeFlow - Sign in</title>
 
-
-    
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="./CSS/variables.css">
-    <link rel="stylesheet" href="./CSS/base.css">
-    <link rel="stylesheet" href="./CSS/layout.css">
-    <link rel="stylesheet" href="./CSS/components.css">
-    <link rel="stylesheet" href="./CSS/animations.css">
-    <link rel="stylesheet" href="./CSS/responsive.css">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="./CSS/variables.css">
+  <link rel="stylesheet" href="./CSS/base.css">
+  <link rel="stylesheet" href="./CSS/layout.css">
+  <link rel="stylesheet" href="./CSS/components.css">
+  <link rel="stylesheet" href="./CSS/animations.css">
+  <link rel="stylesheet" href="./CSS/responsive.css">
 </head>
 <body class="login-page">
-    <div class="background-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <main class="login-container fade-in">
+    <div class="login-card slide-up">
+      <div class="login-header">
+        <div class="logo">
+          <span class="logo-icon">⏱️</span>
+          <h1 class="logo-text">TimeFlow</h1>
+        </div>
+        <p class="tagline">Track your time, master your day</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <p class="forgot-password">
+          <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+        </p>
+        <div id="resetMessage" class="auth-message hidden"></div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Sign In</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+
+        <p class="toggle-auth">
+          Don't have an account?
+          <a href="#" id="showSignup">Sign up</a>
+        </p>
+      </form>
+
+      <form id="signupForm" class="login-form hidden">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Enter your name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Create Account</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+
+        <p class="toggle-auth">
+          Already have an account?
+          <a href="#" id="showLogin">Sign in</a>
+        </p>
+      </form>
+
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+
+      <button id="googleBtn" class="btn btn-google">
+        <!-- google icon SVG -->
+        <span>Google</span>
+      </button>
+
+      <div id="authError" class="error-message hidden"></div>
     </div>
-    
-    <main class="login-container fade-in">
-        <div class="login-card slide-up">
-            <div class="login-header">
-                <div class="logo">
-                    <span class="logo-icon">⏱️</span>
-                    <h1 class="logo-text">TimeFlow</h1>
-                </div>
-                <p class="tagline">Track your time, master your day</p>
-            </div>
-            
-            <form id="loginForm" class="login-form">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="Enter your email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    <span>Sign In</span>
-                    <span class="btn-loader hidden"></span>
-                </button>
-                
-                <p class="toggle-auth">
-                    Don't have an account? 
-                    <a href="#" id="showSignup">Sign up</a>
-                </p>
-            </form>
-            
-            <form id="signupForm" class="login-form hidden">
-                <div class="form-group">
-                    <label for="signupName">Full Name</label>
-                    <input type="text" id="signupName" placeholder="Enter your name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupEmail">Email Address</label>
-                    <input type="email" id="signupEmail" placeholder="Enter your email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupPassword">Password</label>
-                    <input type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" required minlength="6">
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    <span>Create Account</span>
-                    <span class="btn-loader hidden"></span>
-                </button>
-                
-                <p class="toggle-auth">
-                    Already have an account? 
-                    <a href="#" id="showLogin">Sign in</a>
-                </p>
-            </form>
-            
-            <div class="divider">
-                <span>or continue with</span>
-            </div>
-            
-            <button id="googleBtn" class="btn btn-google">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                <span>Google</span>
-            </button>
-            
-            <div id="authError" class="error-message hidden"></div>
-        </div>
-        
-        <div class="login-features">
-            <div class="feature-card fade-in-delay-1">
-                <span class="feature-icon">📊</span>
-                <h3>Track Activities</h3>
-                <p>Log your daily activities with ease</p>
-            </div>
-            <div class="feature-card fade-in-delay-2">
-                <span class="feature-icon">📈</span>
-                <h3>Visual Analytics</h3>
-                <p>Beautiful charts and insights</p>
-            </div>
-            <div class="feature-card fade-in-delay-3">
-                <span class="feature-icon">🎯</span>
-                <h3>Stay Focused</h3>
-                <p>Master your time management</p>
-            </div>
-        </div>
-    </main>
-    <!-- Firebase App (Core SDK) -->
 
+    <div class="login-features">
+      <div class="feature-card fade-in-delay-1">
+        <span class="feature-icon">📊</span>
+        <h3>Track Activities</h3>
+        <p>Log your daily activities with ease</p>
+      </div>
+      <div class="feature-card fade-in-delay-2">
+        <span class="feature-icon">📈</span>
+        <h3>Visual Analytics</h3>
+        <p>Beautiful charts and insights</p>
+      </div>
+      <div class="feature-card fade-in-delay-3">
+        <span class="feature-icon">🎯</span>
+        <h3>Stay Focused</h3>
+        <p>Master your time management</p>
+      </div>
+    </div>
+  </main>
 
-    <script src="./js/firebase-config.js"></script>
-    <script src="./js/auth.js"></script>
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <script src="./js/firebase-config.js"></script>
+  <script src="./js/auth.js"></script>
 </body>
 </html>
