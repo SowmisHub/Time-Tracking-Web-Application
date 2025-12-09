@@ -159,12 +159,14 @@
 .login-page {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;  /* allows content to flow down */
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;  /* prevents centering from cutting off content */
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     position: relative;
-    overflow: auto;
+    overflow-y: auto;   /* enables scrolling */
 }
+
 
 .background-shapes {
     position: absolute;
@@ -218,6 +220,7 @@
     padding: var(--space-8);
     max-width: 1200px;
     width: 100%;
+    margin-bottom: 3rem;
 }
 
 .login-card {
