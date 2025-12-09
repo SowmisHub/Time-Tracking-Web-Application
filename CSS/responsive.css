@@ -1,0 +1,247 @@
+/* ============================================
+   Responsive Styles
+   ============================================ */
+
+/* Tablet (768px and below) */
+@media screen and (max-width: 768px) {
+    :root {
+        --font-3xl: 1.5rem;
+        --font-2xl: 1.25rem;
+        --font-xl: 1.125rem;
+    }
+
+    .container {
+        padding: 0 var(--space-4);
+    }
+
+    /* Header */
+    .header-content {
+        padding: 0 var(--space-4);
+        height: 60px;
+    }
+
+    .nav {
+        gap: var(--space-4);
+    }
+
+    .nav-link {
+        font-size: var(--font-xs);
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    /* Login Page */
+    .login-container {
+        padding: var(--space-4);
+    }
+
+    .login-card {
+        padding: var(--space-6);
+    }
+
+    .login-features {
+        display: none;
+    }
+
+    /* Page Header */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-picker-wrapper {
+        width: 100%;
+    }
+
+    .date-picker {
+        width: 100%;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-card {
+        padding: var(--space-4);
+    }
+
+    .stat-icon {
+        font-size: var(--font-xl);
+    }
+
+    .stat-value {
+        font-size: var(--font-lg);
+    }
+
+    /* Form */
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row .form-group {
+        min-width: 100%;
+    }
+
+    .form-row .btn {
+        width: 100%;
+    }
+
+    /* Activities Grid */
+    .activities-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Analytics */
+    .analytics-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+        padding: var(--space-4);
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    /* Modal */
+    .modal-content {
+        margin: var(--space-4);
+    }
+
+    /* Toast */
+    .toast {
+        left: var(--space-4);
+        right: var(--space-4);
+        bottom: var(--space-4);
+    }
+}
+
+/* Mobile (480px and below) */
+@media screen and (max-width: 480px) {
+    :root {
+        --font-3xl: 1.25rem;
+        --font-2xl: 1.125rem;
+    }
+
+    /* Header */
+    .header-content {
+        height: 56px;
+    }
+
+    .logo-text {
+        font-size: var(--font-base);
+    }
+
+    .nav {
+        gap: var(--space-2);
+    }
+
+    .nav-link {
+        padding: var(--space-1) var(--space-2);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: var(--space-4) 0;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        grid-template-columns: 1fr;
+    }
+
+    /* Add Activity Section */
+    .add-activity-section {
+        padding: var(--space-4);
+    }
+
+    /* Analytics Summary */
+    .analytics-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-card {
+        padding: var(--space-4);
+    }
+
+    /* Category List */
+    .category-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* Empty State */
+    .empty-illustration-large {
+        font-size: 4rem;
+    }
+}
+
+/* Large screens (1280px and above) */
+@media screen and (min-width: 1280px) {
+    .container {
+        padding: 0 var(--space-8);
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Hover capabilities detection */
+@media (hover: none) {
+    .btn:hover {
+        transform: none;
+    }
+
+    .activity-card:hover {
+        transform: none;
+    }
+
+    .feature-card:hover {
+        transform: none;
+    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .shape {
+        animation: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .header,
+    .btn,
+    .action-btn,
+    .modal {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+    }
+
+    .activity-card,
+    .chart-card,
+    .summary-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
